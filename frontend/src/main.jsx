@@ -4,6 +4,9 @@ import './index.css';
 import App from "./App.jsx";
 import { BrowserRouter } from "react-router-dom";
 
+document.documentElement.setAttribute("data-theme", "cupcake");
+document.documentElement.style.colorScheme = "light";
+
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <BrowserRouter>
@@ -11,3 +14,5 @@ createRoot(document.getElementById("root")).render(
     </BrowserRouter>
   </StrictMode>
 );
+
+

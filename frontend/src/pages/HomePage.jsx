@@ -1,23 +1,45 @@
-import React from "react";
-import Sidebar from "../components/Sidebar";
-import NoChatSelected from "../components/NoChatSelected";
-import ChatContainer from "../components/ChatContainer";
-import { useChatStore } from "../store/useChatStore";
+import React, { useEffect, useState } from "react";
+import { usePostStore } from "../store/usePostStore";
+import { SearchX , LoaderCircle} from "lucide-react";
+import Post from "../components/Post";
 
 const HomePage = () => {
-  const { selectedUser } = useChatStore();
-  return (
-    <div className="h-screen bg-base-200">
-      <div className="flex items-center justify-center pt-20 px-4">
-        <div className="bg-base-100 rounded-lg shadow-cl w-full max-w-6xl h-[calc(100vh-8rem)]">
-          <div className="flex h-full rounded-lg overflow-hidden">
-            <Sidebar />
+  const { getFeed,  isFeedLoading } = usePostStore();
+  const [feed, setFeed ] = useState([]);
 
-            {!selectedUser ? <NoChatSelected /> : <ChatContainer />}
-          </div>
+  useEffect(() => {
+    const fetchFeed = async () => {
+      const res = await getFeed();
+      setFeed(res.data.feed);
+    };
+
+    fetchFeed();
+  }, []);
+
+  if(isFeedLoading) return (
+    <div className="flex w-full h-full justify-center items-center"><LoaderCircle className="w-16 h-16 animate-spin" /></div>
+  )
+
+  if (feed.length === 0) return (
+    <div className="flex flex-col w-full h-full justify-center items-center space-y-5">
+        <SearchX width = {80} height = {80}/>
+        <h1 className="text-2xl">Your feed is empty</h1>
+    </div>
+  )
+
+  return (
+    <div className="flex w-full h-full justify-center relative px-4 py-5 overflow-y-auto">
+      {feed && (
+        <div className="flex flex-col items-center gap-8">
+          {feed.map((post) => (
+            <div className="w-full max-w-2xl px-4" key={post._id}>
+              <Post post={post} />
+            </div>
+          ))}
         </div>
-      </div>
+      )}
     </div>
   );
 };
+
 export default HomePage;

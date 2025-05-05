@@ -5,22 +5,22 @@ import NavBar from "./components/Navbar";
 import HomePage from "./pages/HomePage";
 import SignUpPage from "./pages/SignUpPage";
 import LoginPage from "./pages/LoginPage";
-import SettingsPage from "./pages/SettingsPage";
 import ProfilePage from "./pages/ProfilePage";
-import { useAuthStore } from "./store/useAuthStore";
+import ChatPage from "./pages/ChatPage";
+import { useSessionStore } from "./store/useSessionStore";
 import { Loader } from "lucide-react";
-import {Toaster} from "react-hot-toast";
+import { Toaster } from "react-hot-toast";
+import MyPostsPage from "./pages/MyPostsPage";
+import UserPostsPage from "./pages/UserPostsPage";
 
 const App = () => {
-  const { authUser, isCheckingAuth, checkAuth } = useAuthStore();
+  const { sessionUser, isCheckingAuth, checkAuth } = useSessionStore();
 
   useEffect(() => {
     checkAuth();
-  }, []);
+  }, [checkAuth]);
 
-  console.log(authUser)
-
-  if (isCheckingAuth && !authUser)
+  if (isCheckingAuth && !sessionUser)
     return (
       <div className="flex items-center justify-center h-screen">
         <Loader className="size-10 animate-spin" />
@@ -31,15 +31,19 @@ const App = () => {
     <div data-theme="cupcake">
       <NavBar />
 
-      <Routes>
-        <Route path="/" element={authUser? <HomePage /> : <Navigate to = "/login"/>} />
-        <Route path="/signup" element={!authUser ? <SignUpPage /> : <Navigate to = "/"/>} />
-        <Route path="/login" element={!authUser ?<LoginPage /> : <Navigate to = "/"/> } />
-        <Route path="/settings" element={<SettingsPage />} />
-        <Route path="/profile" element={authUser?<ProfilePage />: <Navigate to = "/login"/>} />
-      </Routes>
+      <div className="w-full h-[calc(100vh-4.5rem)] mt-[4.5rem]">
+        <Routes>
+          <Route path="/" element={sessionUser ? <HomePage /> : <Navigate to="/login" />} />
+          <Route path="/chat" element={sessionUser ? <ChatPage /> : <Navigate to="/login" />} />
+          <Route path="/myposts" element={sessionUser ? <MyPostsPage /> : <Navigate to="/login" />} />
+          <Route path={`/posts/:userid`} element={sessionUser ? <UserPostsPage /> : <Navigate to="/login" />} />
+          <Route path="/profile" element={sessionUser ? <ProfilePage /> : <Navigate to="/login" />} />
+          <Route path="/signup" element={!sessionUser ? <SignUpPage /> : <Navigate to="/" />} />
+          <Route path="/login" element={!sessionUser ? <LoginPage /> : <Navigate to="/" />} />
+        </Routes>
+      </div>
 
-      <Toaster/>
+      <Toaster />
     </div>
   );
 };

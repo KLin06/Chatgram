@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import { useAuthStore } from "../store/useAuthStore";
+import { useSessionStore } from "../store/useSessionStore";
 import { Eye, EyeOff, Loader2, Lock, Mail, MessageSquare, User } from "lucide-react";
 import { Link } from "react-router-dom";
-import AuthImagePattern from "../components/AuthImagePattern";
 import toast from "react-hot-toast";
+import AuthImagePattern from "../components/AuthImagePattern";
 
 const SignUpPage = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -13,7 +13,7 @@ const SignUpPage = () => {
     password: "",
   });
 
-  const { signup, isSigningUp } = useAuthStore();
+  const { signup, isSigningUp } = useSessionStore();
 
   const validateForm = () => {
     if (!formData.fullName.trim()) return toast.error("Full name is required");
@@ -36,11 +36,9 @@ const SignUpPage = () => {
   };
 
   return (
-    <div className="min-h-screen grid lg:grid-cols-2">
-      {/* left side */}
-      <div className="flex flex-col justify-center items-center p-6 sm:p-12">
+    <div className="h-full grid lg:grid-cols-2">
+      <div className="flex flex-col justify-center items-center bg-surface sm:p-12 max-h-[calc(100vh-4.5rem)]">
         <div className="w-full max-w-md space-y-8">
-          {/* LOGO */}
           <div className="text-center mb-8">
             <div className="flex flex-col items-center gap-2 group">
               <div
@@ -50,7 +48,7 @@ const SignUpPage = () => {
                 <MessageSquare className="size-6 text-primary" />
               </div>
               <h1 className="text-2xl font-bold mt-2">Create Account</h1>
-              <p className="text-base-content/60">Get started with your free account</p>
+              <p className="text-base-content/60">Set up your account. It's free!</p>
             </div>
           </div>
 
@@ -143,9 +141,7 @@ const SignUpPage = () => {
         </div>
       </div>
 
-      {/* right side */}
-
-      <AuthImagePattern
+      <AuthImagePattern 
         title="Join our community"
         subtitle="Connect with friends, share moments, and stay in touch with your loved ones."
       />

@@ -4,9 +4,6 @@ import bcrypt from "bcryptjs";
 import cloudinary from "../lib/cloudinary.js";
 
 export const signup =  async (req, res) => {
-    // signup user
-    // hash password
-    // create authentication token
     const {fullName, email, password} = req.body;
     try {
         if (!fullName || !email || !password){
@@ -111,6 +108,17 @@ export const checkAuth = (req, res) => {
         res.status(200).json(req.user);
     } catch (error) {
         console.log("Error in checkAuth controller:", error.message)
-        res.status(500).json({message: "Internal server error "});
+        res.status(500).json({message: "Internal server error"});
+    }
+};
+
+export const getUserById = async (req, res) => {
+    const {id} = req.params;
+    try {
+        const user = await User.findOne({ _id: id }).select("-password -createdAt -updatedAt")
+        return res.status(200).json({user});
+    } catch (error) {
+        console.log("Error in getUserById controller:", error.message)
+        res.status(500).json({message: "Internal server error"});
     }
 }

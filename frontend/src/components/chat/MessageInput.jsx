@@ -1,26 +1,35 @@
 import { useRef, useState } from "react";
-import { useChatStore } from "../store/useChatStore";
+import { useMessageStore } from "../../store/useMessageStore";
 import { Image, Send, X } from "lucide-react";
 import toast from "react-hot-toast";
+import { compressImage } from "../../lib/utils";
 
 const MessageInput = () => {
   const [text, setText] = useState("");
   const [imagePreview, setImagePreview] = useState(null);
+  const [imageToUpload, setImageToUpload] = useState(null);
   const fileInputRef = useRef(null);
-  const { sendMessage } = useChatStore();
+  const { sendMessage } = useMessageStore();
 
-  const handleImageChange = (e) => {
+  const handleImageChange = async (e) => {
     const file = e.target.files[0];
     if (!file.type.startsWith("image/")) {
       toast.error("Please select an image file");
       return;
     }
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setImagePreview(reader.result);
-    };
-    reader.readAsDataURL(file);
+    try {
+      const compressedFile = await compressImage(file, 0.1);
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result); // Preview compressed image
+      };
+      reader.readAsDataURL(compressedFile);
+    } catch (error) {
+      toast.error("Image compression failed");
+      console.error(error);
+    }
   };
 
   const removeImage = () => {
@@ -48,19 +57,17 @@ const MessageInput = () => {
   };
 
   return (
-    <div className="p-4 w-full">
+    <div className="relative p-2 w-full bg-surface">
       {imagePreview && (
-        <div className="mb-3 flex items-center gap-2">
+        <div
+          className="absolute bottom-full right-4 mb-2 flex items-center justify-center gap-2 w-[6rem] h-[6rem] bg-surface -top-[6rem] left-2 rounded-xl shadow-lg ring-1 ring-zinc-700 "
+        >
           <div className="relative">
-            <img
-              src={imagePreview}
-              alt="Preview"
-              className="w-20 h-20 object-cover rounded-lg border border-zinc-700"
-            />
+            <img src={imagePreview} alt="Preview" className="w-20 h-20 object-cover rounded-lg border border-zinc-700" />
             <button
               onClick={removeImage}
-              className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-base-300
-              flex items-center justify-center"
+              className="absolute -top-1.5 -right-1.5 w-5 h-5 p-1 rounded-full bg-base-300
+              flex items-center justify-center hover:bg-zinc-700 transition"
               type="button"
             >
               <X className="size-3" />
@@ -78,13 +85,7 @@ const MessageInput = () => {
             value={text}
             onChange={(e) => setText(e.target.value)}
           />
-          <input
-            type="file"
-            accept="image/*"
-            className="hidden"
-            ref={fileInputRef}
-            onChange={handleImageChange}
-          />
+          <input type="file" accept="image/*" className="hidden" ref={fileInputRef} onChange={handleImageChange} />
 
           <button
             type="button"
@@ -95,11 +96,7 @@ const MessageInput = () => {
             <Image size={20} />
           </button>
         </div>
-        <button
-          type="submit"
-          className="btn btn-sm btn-circle"
-          disabled={!text.trim() && !imagePreview}
-        >
+        <button type="submit" className="btn btn-sm btn-circle" disabled={!text.trim() && !imagePreview}>
           <Send size={22} />
         </button>
       </form>
